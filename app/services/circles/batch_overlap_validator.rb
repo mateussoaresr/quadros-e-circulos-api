@@ -10,14 +10,25 @@ module Circles
     end
 
     def valid?
-      # Lazy enumeration com interrupção antecipada
-      @circles.lazy.combination(2).any? do |a, b|
-        overlaps?(a, b).tap do |ov|
-          if ov
+      # Ordena pelo eixo X para reduzir comparações
+      @circles.sort_by!(&:center_x)
+
+      @circles.each_with_index do |a, i|
+        ((i + 1)...@circles.size).each do |j|
+          b = @circles[j]
+
+          # Se a distância no eixo X já for maior que a soma dos raios,
+          # não tem como sobrepor com os próximos (pois estão mais à direita)
+          break if (b.center_x - a.center_x) > (a.radius + b.radius)
+
+          if overlaps?(a, b)
             @errors << "Circle at (#{a.center_x}, #{a.center_y}) overlaps with one at (#{b.center_x}, #{b.center_y})"
+            return false # para imediatamente
           end
         end
-      end == false
+      end
+
+      true
     end
 
     def errors
@@ -29,7 +40,9 @@ module Circles
     def overlaps?(a, b)
       dx = a.center_x - b.center_x
       dy = a.center_y - b.center_y
-      Math.sqrt(dx**2 + dy**2) <= (a.radius + b.radius)
+      dist_sq = dx * dx + dy * dy
+      radius_sum = a.radius + b.radius
+      dist_sq <= radius_sum * radius_sum # sem usar sqrt
     end
   end
 end

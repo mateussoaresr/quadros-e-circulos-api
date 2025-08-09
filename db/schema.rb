@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_09_172507) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_09_173535) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gist"
   enable_extension "pg_catalog.plpgsql"
@@ -22,7 +22,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_09_172507) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "frame_id", null: false
+    t.virtual "x_range", type: :numrange, as: "numrange((center_x - radius), (center_x + radius), '[]'::text)", stored: true
+    t.virtual "y_range", type: :numrange, as: "numrange((center_y - radius), (center_y + radius), '[]'::text)", stored: true
     t.index ["frame_id"], name: "index_circles_on_frame_id"
+    t.index ["x_range"], name: "index_circles_on_x_range", using: :gist
+    t.index ["y_range"], name: "index_circles_on_y_range", using: :gist
   end
 
   create_table "frames", force: :cascade do |t|

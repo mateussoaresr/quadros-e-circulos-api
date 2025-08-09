@@ -7,17 +7,26 @@ class Circle < ApplicationRecord
   validates_with CircleWithinFrameValidator
   validate :no_overlap_with_saved_circles
 
+  private
+
   def no_overlap_with_saved_circles
     return unless frame_id
 
-    existing = Circle.where(frame_id: frame_id).where.not(id: id)
-    if existing.any? { |c| overlaps?(c) }
-      errors.add(:base, "overlaps with an existing circle in this frame")
-    end
+    bb = bounding_box
+    overlap = Circle.where(frame_id: frame_id)
+                    .where.not(id: id)
+                    .where("x_range && numrange(?, ?, '[]') AND y_range && numrange(?, ?, '[]')", bb[:min_x], bb[:max_x], bb[:min_y], bb[:max_y])
+                    .exists?
+
+    errors.add(:base, "overlaps with an existing circle in this frame") if overlap
   end
 
-  def overlaps?(other)
-    dist = Math.sqrt((center_x - other.center_x)**2 + (center_y - other.center_y)**2)
-    dist <= (radius + other.radius)
+  def bounding_box
+    {
+      min_x: center_x - radius,
+      max_x: center_x + radius,
+      min_y: center_y - radius,
+      max_y: center_y + radius
+    }
   end
 end
