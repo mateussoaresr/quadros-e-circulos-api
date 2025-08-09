@@ -184,6 +184,82 @@ paths:
                     errors:
                       - "Center x can't be blank"
 
+  /circles/{id}:
+    put:
+      summary: Atualiza a posição de um círculo existente
+      parameters:
+        - name: id
+          in: path
+          description: ID do círculo a ser atualizado
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CircleCreateRequest'
+            examples:
+              circulo-sem-sobreposicao:
+                summary: Atualização válida de círculo sem sobreposição (persiste)
+                value:
+                  circle:
+                    center_x: 1250.0
+                    center_y: 300.0
+                    radius: 50.0
+              circulo-com-sobreposicao:
+                summary: Atualização de círculo com sobreposição (não persiste)
+                value:
+                  circle:
+                    center_x: 1350.0
+                    center_y: 300.0
+                    radius: 50.0
+
+      responses:
+        '200':
+          description: Círculo atualizado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Circle'
+              examples:
+                sucesso:
+                  value:
+                    id: 20
+                    center_x: 1250.0
+                    center_y: 300.0
+                    radius: 50.0
+                    frame_id: 3
+
+        '404':
+          description: Círculo não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                circle_nao_encontrado:
+                  value:
+                    errors:
+                      - "Circle not found"
+
+        '422':
+          description: Erro de validação — círculo com sobreposição ou dados inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                overlap_error_circle:
+                  value:
+                    errors:
+                      - "overlaps with an existing circle in this frame"
+                invalid_data:
+                  value:
+                    errors:
+                      - "Center x can't be blank"
+
 components:
   schemas:
     Circle:

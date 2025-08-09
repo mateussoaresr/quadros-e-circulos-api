@@ -10,6 +10,16 @@ class CirclesController < ApplicationController
     end
   end
 
+  def update
+    circle = Circle.find(params[:id])
+
+    if circle.update(circle_params)
+      render json: circle, status: :ok
+    else
+      render json: { errors: circle.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
   private
 
   def circle_params
