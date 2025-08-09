@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  center_x: 9.99
+  center_y: 9.99
+  radius: 9.99
+
+two:
+  center_x: 9.99
+  center_y: 9.99
+  radius: 9.99
