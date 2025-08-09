@@ -6,6 +6,20 @@ class Circle < ApplicationRecord
   validates_with CircleWithinFrameValidator
   validate :no_overlap_with_saved_circles
 
+  scope :within_search_radius, ->(cx, cy, r) {
+    bb_min_x = cx - r
+    bb_max_x = cx + r
+    bb_min_y = cy - r
+    bb_max_y = cy + r
+
+    where("x_range && numrange(?, ?, '[]') AND y_range && numrange(?, ?, '[]')",
+      bb_min_x, bb_max_x, bb_min_y, bb_max_y
+    ).where(
+      "SQRT(POWER(center_x - ?, 2) + POWER(center_y - ?, 2)) + radius <= ?",
+      cx, cy, r
+    )
+  }
+
   private
 
   def no_overlap_with_saved_circles

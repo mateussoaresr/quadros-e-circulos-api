@@ -260,6 +260,82 @@ paths:
                     errors:
                       - "Center x can't be blank"
 
+  /circles:
+    get:
+      summary: Lista todos os círculos completamente dentro do raio especificado a partir de um ponto central, opcionalmente filtrados por quadro
+      parameters:
+        - name: center_x
+          in: query
+          description: Coordenada X do ponto central
+          required: true
+          schema:
+            type: number
+            format: float
+        - name: center_y
+          in: query
+          description: Coordenada Y do ponto central
+          required: true
+          schema:
+            type: number
+            format: float
+        - name: radius
+          in: query
+          description: Raio do círculo de busca (centímetros)
+          required: true
+          schema:
+            type: number
+            format: float
+        - name: frame_id
+          in: query
+          description: ID do frame para filtrar círculos (opcional)
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Lista de círculos dentro do raio especificado
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Circle'
+              examples:
+                sem_filtro:
+                  summary: Retorna círculos dentro do raio sem filtro de frame
+                  value:
+                    - id: 1
+                      center_x: 100.0
+                      center_y: 150.0
+                      radius: 50.0
+                      frame_id: 1
+                    - id: 2
+                      center_x: 200.0
+                      center_y: 200.0
+                      radius: 30.0
+                      frame_id: 1
+
+                com_filtro:
+                  summary: Retorna círculos dentro do raio filtrando por frame_id
+                  value:
+                    - id: 10
+                      center_x: 1010.0
+                      center_y: 1010.0
+                      radius: 20.0
+                      frame_id: 3
+
+        '422':
+          description: Erro de validação — parâmetros obrigatórios faltando ou inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                missing_params:
+                  value:
+                    errors:
+                      - "center_x, center_y and radius are required"
+
 components:
   schemas:
     Circle:
