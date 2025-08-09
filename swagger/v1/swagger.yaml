@@ -1,0 +1,225 @@
+openapi: 3.0.3
+info:
+  title: Frames API
+  version: 1.0.0
+  description: API para criar frames com círculos, garantindo que os círculos não se sobreponham e também checando sobreposição entre frames.
+
+servers:
+  - url: http://localhost:3000
+    description: Servidor local de desenvolvimento
+
+paths:
+  /frames:
+    post:
+      summary: Cria um novo frame com círculos opcionais
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FrameCreateRequest'
+            examples: 
+              frame-sem-circulos:
+                summary: Frame sem círculos (persiste)
+                value:
+                  frame:
+                    center_x: 100
+                    center_y: 100
+                    width: 200
+                    height: 200
+
+              frame-com-circulos-sobrepostos:
+                summary: Frame com círculos sobrepostos (não persiste)
+                value:
+                  frame:
+                    center_x: 400
+                    center_y: 300
+                    width: 800
+                    height: 600
+                    circles:
+                      - center_x: 100
+                        center_y: 150
+                        radius: 100
+                      - center_x: 130
+                        center_y: 150
+                        radius: 100
+
+              frame-com-circulos-sem-sobreposicao:
+                summary: Frame com círculos sem sobreposição (persiste)
+                value:
+                  frame:
+                    center_x: 700
+                    center_y: 300
+                    width: 400
+                    height: 300
+                    circles:
+                      - center_x: 100
+                        center_y: 150
+                        radius: 50
+                      - center_x: 300
+                        center_y: 150
+                        radius: 50
+
+              frame-com-sobreposicao-com-outro-frame:
+                summary: Frame com sobreposição a outro frame (não persiste)
+                value:
+                  frame:
+                    center_x: 150
+                    center_y: 150
+                    width: 300
+                    height: 300
+                    circles: []
+
+      responses:
+        '201':
+          description: Frame criado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FrameResponse'
+              examples:
+                sucesso:
+                  value:
+                    id: 1
+                    center_x: 100.0
+                    center_y: 100.0
+                    width: 200.0
+                    height: 200.0
+                    circles: []
+
+        '422':
+          description: Erro de validação — círculos se sobrepõem ou frames com sobreposição
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                overlap_error_circles:
+                  value:
+                    errors:
+                      - "Circle at (100.0, 150.0) overlaps with one at (130.0, 150.0)"
+                overlap_error_frames:
+                  value:
+                    errors:
+                      - "Frame overlaps with an existing frame at (100.0, 100.0)"
+                invalid_data:
+                  value:
+                    errors:
+                      - "Width can't be blank"
+
+components:
+  schemas:
+    Circle:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 10
+        center_x:
+          type: number
+          format: float
+          example: 100.0
+        center_y:
+          type: number
+          format: float
+          example: 150.0
+        radius:
+          type: number
+          format: float
+          example: 50.0
+        frame_id:
+          type: integer
+          example: 1
+      required:
+        - center_x
+        - center_y
+        - radius
+        - frame_id
+
+    FrameCreateRequest:
+      type: object
+      required:
+        - frame
+      properties:
+        frame:
+          type: object
+          required:
+            - center_x
+            - center_y
+            - width
+            - height
+          properties:
+            center_x:
+              type: number
+              format: float
+              example: 400.0
+            center_y:
+              type: number
+              format: float
+              example: 300.0
+            width:
+              type: number
+              format: float
+              example: 800.0
+            height:
+              type: number
+              format: float
+              example: 600.0
+            circles:
+              type: array
+              items:
+                type: object
+                required:
+                  - center_x
+                  - center_y
+                  - radius
+                properties:
+                  center_x:
+                    type: number
+                    format: float
+                    example: 100.0
+                  center_y:
+                    type: number
+                    format: float
+                    example: 150.0
+                  radius:
+                    type: number
+                    format: float
+                    example: 50.0
+
+    FrameResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        center_x:
+          type: number
+          format: float
+          example: 400.0
+        center_y:
+          type: number
+          format: float
+          example: 300.0
+        width:
+          type: number
+          format: float
+          example: 800.0
+        height:
+          type: number
+          format: float
+          example: 600.0
+        circles:
+          type: array
+          items:
+            $ref: '#/components/schemas/Circle'
+
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: string
+          example:
+            - "Circle at (100.0, 150.0) overlaps with one at (130.0, 150.0)"

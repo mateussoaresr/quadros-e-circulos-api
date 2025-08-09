@@ -3,9 +3,13 @@ module Circles
     CircleData = Struct.new(:center_x, :center_y, :radius)
 
     def initialize(circle_attrs_list)
-      @circles = circle_attrs_list.map { |a|
-        CircleData.new(a[:center_x], a[:center_y], a[:radius])
-      }
+      @circles = circle_attrs_list.map do |a|
+        CircleData.new(
+          a[:center_x].to_f,
+          a[:center_y].to_f,
+          a[:radius].to_f
+        )
+      end
       @errors = []
     end
 
