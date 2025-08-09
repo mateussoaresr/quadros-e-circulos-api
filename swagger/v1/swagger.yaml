@@ -18,56 +18,56 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/FrameCreateRequest'
-            examples: 
+            examples:
               frame-sem-circulos:
                 summary: Frame sem círculos (persiste)
                 value:
                   frame:
-                    center_x: 100
-                    center_y: 100
-                    width: 200
-                    height: 200
+                    center_x: 300.0
+                    center_y: 300.0
+                    width: 400.0
+                    height: 400.0
 
               frame-com-circulos-sobrepostos:
                 summary: Frame com círculos sobrepostos (não persiste)
                 value:
                   frame:
-                    center_x: 400
-                    center_y: 300
-                    width: 800
-                    height: 600
+                    center_x: 800.0
+                    center_y: 300.0
+                    width: 400.0
+                    height: 400.0
                     circles:
-                      - center_x: 100
-                        center_y: 150
-                        radius: 100
-                      - center_x: 130
-                        center_y: 150
-                        radius: 100
+                      - center_x: 750.0
+                        center_y: 300.0
+                        radius: 50.0
+                      - center_x: 790.0
+                        center_y: 300.0
+                        radius: 50.0
 
               frame-com-circulos-sem-sobreposicao:
                 summary: Frame com círculos sem sobreposição (persiste)
                 value:
                   frame:
-                    center_x: 700
-                    center_y: 300
-                    width: 400
-                    height: 300
+                    center_x: 1300.0
+                    center_y: 300.0
+                    width: 400.0
+                    height: 400.0
                     circles:
-                      - center_x: 100
-                        center_y: 150
-                        radius: 50
-                      - center_x: 300
-                        center_y: 150
-                        radius: 50
+                      - center_x: 1200.0
+                        center_y: 300.0
+                        radius: 50.0
+                      - center_x: 1400.0
+                        center_y: 300.0
+                        radius: 50.0
 
               frame-com-sobreposicao-com-outro-frame:
                 summary: Frame com sobreposição a outro frame (não persiste)
                 value:
                   frame:
-                    center_x: 150
-                    center_y: 150
-                    width: 300
-                    height: 300
+                    center_x: 500.0
+                    center_y: 300.0
+                    width: 400.0
+                    height: 400.0
                     circles: []
 
       responses:
@@ -81,10 +81,10 @@ paths:
                 sucesso:
                   value:
                     id: 1
-                    center_x: 100.0
-                    center_y: 100.0
-                    width: 200.0
-                    height: 200.0
+                    center_x: 300.0
+                    center_y: 300.0
+                    width: 400.0
+                    height: 400.0
                     circles: []
 
         '422':
@@ -97,15 +97,92 @@ paths:
                 overlap_error_circles:
                   value:
                     errors:
-                      - "Circle at (100.0, 150.0) overlaps with one at (130.0, 150.0)"
+                      - "Circle at (750.0, 300.0) overlaps with one at (790.0, 300.0)"
                 overlap_error_frames:
                   value:
                     errors:
-                      - "Frame overlaps with an existing frame at (100.0, 100.0)"
+                      - "must not touch or intersect another frame"
                 invalid_data:
                   value:
                     errors:
                       - "Width can't be blank"
+
+  /frames/{frame_id}/circles:
+    post:
+      summary: Adiciona um círculo ao quadro especificado
+      parameters:
+        - name: frame_id
+          in: path
+          description: ID do frame ao qual o círculo será adicionado
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CircleCreateRequest'
+            examples:
+              circulo-sem-sobreposicao:
+                summary: Círculo sem sobreposição no frame (persiste)
+                value:
+                  circle:
+                    center_x: 350.0
+                    center_y: 350.0
+                    radius: 50.0
+
+              circulo-com-sobreposicao:
+                summary: Círculo com sobreposição no frame (não persiste)
+                value:
+                  circle:
+                    center_x: 310.0
+                    center_y: 300.0
+                    radius: 100.0
+
+      responses:
+        '201':
+          description: Círculo criado com sucesso no frame
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Circle'
+              examples:
+                sucesso:
+                  value:
+                    id: 10
+                    center_x: 350.0
+                    center_y: 350.0
+                    radius: 50.0
+                    frame_id: 1
+
+        '404':
+          description: Frame não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                frame_nao_encontrado:
+                  value:
+                    errors:
+                      - "Frame not found"
+
+        '422':
+          description: Erro de validação — círculo com sobreposição ou dados inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                overlap_error_circle:
+                  value:
+                    errors:
+                      - "overlaps with an existing circle in this frame"
+                invalid_data:
+                  value:
+                    errors:
+                      - "Center x can't be blank"
 
 components:
   schemas:
@@ -135,6 +212,31 @@ components:
         - center_y
         - radius
         - frame_id
+
+    CircleCreateRequest:
+      type: object
+      required:
+        - circle
+      properties:
+        circle:
+          type: object
+          required:
+            - center_x
+            - center_y
+            - radius
+          properties:
+            center_x:
+              type: number
+              format: float
+              example: 350.0
+            center_y:
+              type: number
+              format: float
+              example: 350.0
+            radius:
+              type: number
+              format: float
+              example: 50.0
 
     FrameCreateRequest:
       type: object

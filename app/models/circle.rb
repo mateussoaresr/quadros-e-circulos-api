@@ -1,7 +1,6 @@
 class Circle < ApplicationRecord
   belongs_to :frame, required: true
   validates :frame, presence: true
-  validates_associated :frame
   validates :center_x, :center_y, :radius, presence: true, numericality: true
 
   validates_with CircleWithinFrameValidator
@@ -11,6 +10,7 @@ class Circle < ApplicationRecord
 
   def no_overlap_with_saved_circles
     return unless frame_id
+    return if center_x.nil? || center_y.nil? || radius.nil? # só segue se campos existem
 
     bb = bounding_box
     overlap = Circle.where(frame_id: frame_id)
