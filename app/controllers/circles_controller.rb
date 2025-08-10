@@ -37,6 +37,16 @@ class CirclesController < ApplicationController
     render json: circles, status: :ok
   end
 
+  def destroy
+    circle = Circle.find_by(id: params[:id])
+    if circle
+      circle.destroy
+      head :no_content  # retorna status 204, sem body
+    else
+      render json: { errors: [ "Circle not found" ] }, status: :not_found
+    end
+  end
+
   private
 
   def circle_params

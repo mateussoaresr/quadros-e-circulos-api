@@ -174,4 +174,19 @@ RSpec.describe "Circles API", type: :request do
       end
     end
   end
+
+  describe "DELETE /circles/:id" do
+    it "deletes the circle and returns 204" do
+      delete "/circles/#{circle.id}"
+      expect(response).to have_http_status(204)
+      expect(Circle.exists?(circle.id)).to be_falsey
+    end
+
+    it "returns 404 if circle not found" do
+      delete "/circles/9999"
+      expect(response).to have_http_status(404)
+      json = JSON.parse(response.body)
+      expect(json["errors"]).to include("Circle not found")
+    end
+  end
 end

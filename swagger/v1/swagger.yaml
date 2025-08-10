@@ -454,6 +454,32 @@ paths:
               center_y: 300.0
               radius: 40.0
 
+  /circles/{id}:
+    delete:
+      summary: Remove um círculo pelo ID
+      parameters:
+        - name: id
+          in: path
+          description: ID do círculo a ser removido
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Círculo removido com sucesso (sem conteúdo)
+        "404":
+          description: Círculo não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                circle_nao_encontrado:
+                  value:
+                    errors:
+                      - "Circle not found"
+
+
 components:
   schemas:
     FrameCreateRequest:
