@@ -17,7 +17,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/FrameCreateRequest'
+              $ref: "#/components/schemas/FrameCreateRequest"
             examples:
               frame-sem-circulos:
                 summary: Frame sem círculos (persiste)
@@ -48,17 +48,20 @@ paths:
                 summary: Frame com círculos sem sobreposição (persiste)
                 value:
                   frame:
-                    center_x: 1300.0
+                    center_x: 900.0
                     center_y: 300.0
                     width: 400.0
                     height: 400.0
                     circles:
-                      - center_x: 1200.0
-                        center_y: 300.0
+                      - center_x: 820.0
+                        center_y: 220.0
                         radius: 50.0
-                      - center_x: 1400.0
-                        center_y: 300.0
+                      - center_x: 980.0
+                        center_y: 220.0
                         radius: 50.0
+                      - center_x: 900.0
+                        center_y: 380.0
+                        radius: 40.0
 
               frame-com-sobreposicao-com-outro-frame:
                 summary: Frame com sobreposição a outro frame (não persiste)
@@ -71,12 +74,12 @@ paths:
                     circles: []
 
       responses:
-        '201':
+        "201":
           description: Frame criado com sucesso
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FrameResponse'
+                $ref: "#/components/schemas/FrameResponse"
               examples:
                 sucesso:
                   value:
@@ -87,12 +90,12 @@ paths:
                     height: 400.0
                     circles: []
 
-        '422':
+        "422":
           description: Erro de validação — círculos se sobrepõem ou frames com sobreposição
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
                 overlap_error_circles:
                   value:
@@ -122,7 +125,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CircleCreateRequest'
+              $ref: "#/components/schemas/CircleCreateRequest"
             examples:
               circulo-sem-sobreposicao:
                 summary: Círculo sem sobreposição no frame (persiste)
@@ -141,12 +144,12 @@ paths:
                     radius: 100.0
 
       responses:
-        '201':
+        "201":
           description: Círculo criado com sucesso no frame
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Circle'
+                $ref: "#/components/schemas/Circle"
               examples:
                 sucesso:
                   value:
@@ -156,24 +159,24 @@ paths:
                     radius: 50.0
                     frame_id: 1
 
-        '404':
+        "404":
           description: Frame não encontrado
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
                 frame_nao_encontrado:
                   value:
                     errors:
                       - "Frame not found"
 
-        '422':
+        "422":
           description: Erro de validação — círculo com sobreposição ou dados inválidos
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
                 overlap_error_circle:
                   value:
@@ -199,7 +202,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CircleCreateRequest'
+              $ref: "#/components/schemas/CircleCreateRequest"
             examples:
               circulo-sem-sobreposicao:
                 summary: Atualização válida de círculo sem sobreposição (persiste)
@@ -217,12 +220,12 @@ paths:
                     radius: 50.0
 
       responses:
-        '200':
+        "200":
           description: Círculo atualizado com sucesso
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Circle'
+                $ref: "#/components/schemas/Circle"
               examples:
                 sucesso:
                   value:
@@ -232,24 +235,24 @@ paths:
                     radius: 50.0
                     frame_id: 3
 
-        '404':
+        "404":
           description: Círculo não encontrado
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
                 circle_nao_encontrado:
                   value:
                     errors:
                       - "Circle not found"
 
-        '422':
+        "422":
           description: Erro de validação — círculo com sobreposição ou dados inválidos
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
                 overlap_error_circle:
                   value:
@@ -292,14 +295,14 @@ paths:
           schema:
             type: integer
       responses:
-        '200':
+        "200":
           description: Lista de círculos dentro do raio especificado
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Circle'
+                  $ref: "#/components/schemas/Circle"
               examples:
                 sem_filtro:
                   summary: Retorna círculos dentro do raio sem filtro de frame
@@ -324,149 +327,204 @@ paths:
                       radius: 20.0
                       frame_id: 3
 
-        '422':
+        "422":
           description: Erro de validação — parâmetros obrigatórios faltando ou inválidos
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
                 missing_params:
                   value:
                     errors:
                       - "center_x, center_y and radius are required"
 
+  /frames/{id}:
+    get:
+      summary: Retorna detalhes de um quadro com métricas dos círculos
+      parameters:
+        - name: id
+          in: path
+          description: ID do frame a ser retornado
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Detalhes do frame com métricas dos círculos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  center_x:
+                    type: number
+                    example: 300.0
+                  center_y:
+                    type: number
+                    example: 300.0
+                  width:
+                    type: number
+                    example: 400.0
+                  height:
+                    type: number
+                    example: 400.0
+                  total_circles:
+                    type: integer
+                    example: 3
+                  circle_top:
+                    type: object
+                    nullable: true
+                    properties:
+                      center_x:
+                        type: number
+                        example: 300.0
+                      center_y:
+                        type: number
+                        example: 260.0
+                      radius:
+                        type: number
+                        example: 40.0
+                  circle_bottom:
+                    type: object
+                    nullable: true
+                    properties:
+                      center_x:
+                        type: number
+                        example: 300.0
+                      center_y:
+                        type: number
+                        example: 340.0
+                      radius:
+                        type: number
+                        example: 40.0
+                  circle_left:
+                    type: object
+                    nullable: true
+                    properties:
+                      center_x:
+                        type: number
+                        example: 260.0
+                      center_y:
+                        type: number
+                        example: 300.0
+                      radius:
+                        type: number
+                        example: 40.0
+                  circle_right:
+                    type: object
+                    nullable: true
+                    properties:
+                      center_x:
+                        type: number
+                        example: 340.0
+                      center_y:
+                        type: number
+                        example: 300.0
+                      radius:
+                        type: number
+                        example: 40.0
+
+      examples:
+        sucesso:
+          value:
+            id: 2
+            center_x: 1300.0
+            center_y: 300.0
+            width: 400.0
+            height: 400.0
+            total_circles: 3
+            circle_top:
+              center_x: 1300.0
+              center_y: 260.0
+              radius: 40.0
+            circle_bottom:
+              center_x: 1300.0
+              center_y: 340.0
+              radius: 40.0
+            circle_left:
+              center_x: 1260.0
+              center_y: 300.0
+              radius: 40.0
+            circle_right:
+              center_x: 1340.0
+              center_y: 300.0
+              radius: 40.0
+
 components:
   schemas:
+    FrameCreateRequest:
+      type: object
+      properties:
+        frame:
+          $ref: '#/components/schemas/Frame'
+      required:
+        - frame
+
+    FrameResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Frame'
+      properties:
+        id:
+          type: integer
+        circles:
+          type: array
+          items:
+            $ref: '#/components/schemas/Circle'
+
+    Frame:
+      type: object
+      properties:
+        center_x:
+          type: number
+          format: float
+        center_y:
+          type: number
+          format: float
+        width:
+          type: number
+          format: float
+        height:
+          type: number
+          format: float
+      required:
+        - center_x
+        - center_y
+        - width
+        - height
+
+    CircleCreateRequest:
+      type: object
+      properties:
+        circle:
+          $ref: '#/components/schemas/Circle'
+      required:
+        - circle
+
     Circle:
       type: object
       properties:
         id:
           type: integer
-          example: 10
         center_x:
           type: number
           format: float
-          example: 100.0
         center_y:
           type: number
           format: float
-          example: 150.0
         radius:
           type: number
           format: float
-          example: 50.0
         frame_id:
           type: integer
-          example: 1
       required:
         - center_x
         - center_y
         - radius
-        - frame_id
-
-    CircleCreateRequest:
-      type: object
-      required:
-        - circle
-      properties:
-        circle:
-          type: object
-          required:
-            - center_x
-            - center_y
-            - radius
-          properties:
-            center_x:
-              type: number
-              format: float
-              example: 350.0
-            center_y:
-              type: number
-              format: float
-              example: 350.0
-            radius:
-              type: number
-              format: float
-              example: 50.0
-
-    FrameCreateRequest:
-      type: object
-      required:
-        - frame
-      properties:
-        frame:
-          type: object
-          required:
-            - center_x
-            - center_y
-            - width
-            - height
-          properties:
-            center_x:
-              type: number
-              format: float
-              example: 400.0
-            center_y:
-              type: number
-              format: float
-              example: 300.0
-            width:
-              type: number
-              format: float
-              example: 800.0
-            height:
-              type: number
-              format: float
-              example: 600.0
-            circles:
-              type: array
-              items:
-                type: object
-                required:
-                  - center_x
-                  - center_y
-                  - radius
-                properties:
-                  center_x:
-                    type: number
-                    format: float
-                    example: 100.0
-                  center_y:
-                    type: number
-                    format: float
-                    example: 150.0
-                  radius:
-                    type: number
-                    format: float
-                    example: 50.0
-
-    FrameResponse:
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 1
-        center_x:
-          type: number
-          format: float
-          example: 400.0
-        center_y:
-          type: number
-          format: float
-          example: 300.0
-        width:
-          type: number
-          format: float
-          example: 800.0
-        height:
-          type: number
-          format: float
-          example: 600.0
-        circles:
-          type: array
-          items:
-            $ref: '#/components/schemas/Circle'
 
     ErrorResponse:
       type: object
@@ -475,5 +533,3 @@ components:
           type: array
           items:
             type: string
-          example:
-            - "Circle at (100.0, 150.0) overlaps with one at (130.0, 150.0)"

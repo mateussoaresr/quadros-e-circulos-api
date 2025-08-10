@@ -88,4 +88,60 @@ RSpec.describe "Frames API", type: :request do
       end
     end
   end
+
+  describe "GET /frames/:id" do
+    let!(:frame) { Frame.create!(center_x: 400, center_y: 300, width: 800, height: 600) }
+    let!(:circle) { frame.circles.create!(center_x: 100, center_y: 150, radius: 50) }
+    let!(:circle2) { frame.circles.create!(center_x: 350, center_y: 350, radius: 40) }
+    let!(:circle3) { frame.circles.create!(center_x: 500, center_y: 400, radius: 30) }
+
+    context "quando o frame existe e tem círculos" do
+      it "retorna 200 OK com as informações e métricas corretas" do
+        get "/frames/#{frame.id}"
+
+        expect(response).to have_http_status(:ok)
+        json = JSON.parse(response.body)
+
+        expect(json["center_x"].to_f).to eq(frame.center_x.to_f)
+        expect(json["center_y"].to_f).to eq(frame.center_y.to_f)
+        expect(json["total_circles"]).to eq(3)
+
+        # O círculo mais 'alto' tem menor center_y (topo)
+        expect(json["circle_top"]["center_y"]).to eq(circle.center_y.to_s)
+        # O círculo mais 'baixo' tem maior center_y
+        expect(json["circle_bottom"]["center_y"]).to eq(circle3.center_y.to_s)
+        # O círculo mais à esquerda tem menor center_x
+        expect(json["circle_left"]["center_x"]).to eq(circle.center_x.to_s)
+        # O círculo mais à direita tem maior center_x
+        expect(json["circle_right"]["center_x"]).to eq(circle3.center_x.to_s)
+      end
+    end
+
+    context "quando o frame existe mas não tem círculos" do
+      let!(:empty_frame) { Frame.create!(center_x: 1200, center_y: 900, width: 400, height: 400) }
+
+      it "retorna métricas nulas para os círculos" do
+        get "/frames/#{empty_frame.id}"
+
+        expect(response).to have_http_status(:ok)
+        json = JSON.parse(response.body)
+
+        expect(json["total_circles"]).to eq(0)
+        expect(json["circle_top"]).to be_nil
+        expect(json["circle_bottom"]).to be_nil
+        expect(json["circle_left"]).to be_nil
+        expect(json["circle_right"]).to be_nil
+      end
+    end
+
+    context "quando o frame não existe" do
+      it "retorna 404 Not Found com json de erro" do
+        get "/frames/999999"
+
+        expect(response).to have_http_status(:not_found)
+        json = JSON.parse(response.body)
+        expect(json["errors"]).to include("Frame not found")
+      end
+    end
+  end
 end

@@ -122,6 +122,7 @@ RSpec.describe "Circles API", type: :request do
       end
     end
   end
+
   describe "GET /circles" do
     context "quando busca círculos dentro de um raio sem frame_id" do
       it "retorna apenas os círculos completamente dentro do raio" do

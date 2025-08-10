@@ -28,4 +28,24 @@ class FramesController < ApplicationController
       end
     end
   end
+
+  def show
+    frame = Frame.find_by(id: params[:id])
+    unless frame
+      render json: { errors: [ "Frame not found" ] }, status: :not_found and return
+    end
+
+    circles = frame.circles
+
+    render json: {
+      id: frame.id,
+      center_x: frame.center_x.to_f,
+      center_y: frame.center_y.to_f,
+      total_circles: circles.count,
+      circle_top: circles.order(:center_y).first&.slice(:center_x, :center_y, :radius),
+      circle_bottom: circles.order(center_y: :desc).first&.slice(:center_x, :center_y, :radius),
+      circle_left: circles.order(:center_x).first&.slice(:center_x, :center_y, :radius),
+      circle_right: circles.order(center_x: :desc).first&.slice(:center_x, :center_y, :radius)
+    }, status: :ok
+  end
 end
