@@ -1,5 +1,5 @@
 class Frame < ApplicationRecord
-  has_many :circles, dependent: :destroy
+  has_many :circles, dependent: :restrict_with_error
 
   validates :width, :height, :center_x, :center_y, presence: true, numericality: true
   validate :no_touching_or_overlap_in_db

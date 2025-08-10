@@ -263,6 +263,30 @@ paths:
                     errors:
                       - "Center x can't be blank"
 
+    delete:
+      summary: Remove um círculo pelo ID
+      parameters:
+        - name: id
+          in: path
+          description: ID do círculo a ser removido
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Círculo removido com sucesso (sem conteúdo)
+        "404":
+          description: Círculo não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                circle_nao_encontrado:
+                  value:
+                    errors:
+                      - "Circle not found"
+
   /circles:
     get:
       summary: Lista todos os círculos completamente dentro do raio especificado a partir de um ponto central, opcionalmente filtrados por quadro
@@ -454,31 +478,40 @@ paths:
               center_y: 300.0
               radius: 40.0
 
-  /circles/{id}:
     delete:
-      summary: Remove um círculo pelo ID
+      summary: Remove um quadro somente se não houver círculos associados
       parameters:
         - name: id
           in: path
-          description: ID do círculo a ser removido
+          description: ID do frame a ser removido
           required: true
           schema:
             type: integer
       responses:
         "204":
-          description: Círculo removido com sucesso (sem conteúdo)
-        "404":
-          description: Círculo não encontrado
+          description: Frame removido com sucesso (sem conteúdo)
+        "422":
+          description: Erro — frame possui círculos associados e não pode ser removido
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               examples:
-                circle_nao_encontrado:
+                has_circles_error:
                   value:
                     errors:
-                      - "Circle not found"
-
+                      - "Cannot delete frame with associated circles"
+        "404":
+          description: Frame não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                not_found_error:
+                  value:
+                    errors:
+                      - "Frame not found"
 
 components:
   schemas:

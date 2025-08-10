@@ -48,4 +48,18 @@ class FramesController < ApplicationController
       circle_right: circles.order(center_x: :desc).first&.slice(:center_x, :center_y, :radius)
     }, status: :ok
   end
+
+  def destroy
+    frame = Frame.find_by(id: params[:id])
+    unless frame
+      return render json: { errors: [ "Frame not found" ] }, status: :not_found
+    end
+
+    if frame.circles.exists?
+      return render json: { errors: [ "Cannot delete frame with associated circles" ] }, status: :unprocessable_entity
+    end
+
+    frame.destroy
+    head :no_content
+  end
 end

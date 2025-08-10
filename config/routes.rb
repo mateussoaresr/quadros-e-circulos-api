@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  resources :frames, only: [ :create, :show ] do
+  resources :frames, only: [ :create, :show, :destroy ] do
     resources :circles, only: [ :create ]
   end
 

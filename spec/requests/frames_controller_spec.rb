@@ -144,4 +144,47 @@ RSpec.describe "Frames API", type: :request do
       end
     end
   end
+
+  describe "DELETE /frames/:id" do
+    let!(:frame) { Frame.create(center_x: 100, center_y: 100, width: 200, height: 200) }
+
+    context "quando o frame existe e não tem círculos" do
+      it "deleta o frame e retorna 204" do
+        expect {
+          delete "/frames/#{frame.id}"
+        }.to change(Frame, :count).by(-1)
+
+        expect(response).to have_http_status(:no_content)
+        expect(response.body).to be_blank # corpo vazio no 204
+      end
+    end
+
+    context "quando o frame não existe" do
+      it "retorna 404 Not Found" do
+        delete "/frames/9999"
+
+        expect(response).to have_http_status(:not_found)
+
+        json = JSON.parse(response.body)
+        expect(json['errors']).to include("Frame not found")
+      end
+    end
+
+    context "quando o frame tem círculos associados" do
+      before do
+        frame.circles.create(center_x: 110, center_y: 110, radius: 10)
+      end
+
+      it "não deleta o frame e retorna 422" do
+        expect {
+          delete "/frames/#{frame.id}"
+        }.to_not change(Frame, :count)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+
+        json = JSON.parse(response.body)
+        expect(json['errors']).to include("Cannot delete frame with associated circles")
+      end
+    end
+  end
 end
