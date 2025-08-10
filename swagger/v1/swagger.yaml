@@ -5,7 +5,7 @@ info:
   description: API para criar frames com círculos, garantindo que os círculos não se sobreponham e também checando sobreposição entre frames.
 
 servers:
-  - url: http://localhost:3000
+  - url: http://localhost:3001
     description: Servidor local de desenvolvimento
 
 paths:
